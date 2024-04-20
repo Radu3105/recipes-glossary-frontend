@@ -1,42 +1,164 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    height: 100vh;
+    padding: 50px 0 0 0;
+    margin: auto;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-title {
+    text-align: center;
+    font-size: 35px;
+    color: white;
+    text-shadow: 2px 2px 5px rgb(146, 146, 146);
+
+    * {
+        margin: 0;
+    }
+
+    p {
+        margin-top: 10px;
+        font-size: 25px;
+    }
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.main-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 50px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.top-picks-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 75px;
+    width: 25%;
 }
 
-.card {
-  padding: 2em;
+.top-pick {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    width: 320px;
+    text-align: center;
+    border-radius: 20px;
+    background-color: white;
+    box-shadow: rgba(150, 99, 80, 0.25) 0px 50px 100px -20px,
+        rgba(87, 87, 87, 0.3) 0px 30px 60px -30px;
+
+    h1 {
+        margin: 0;
+    }
 }
 
-.read-the-docs {
-  color: #888;
+.table-group {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+}
+
+.recipe-table {
+    width: 100%;
+    height: 891px;
+    padding: 20px 40px 20px 40px;
+    border-radius: 20px;
+    background-color: white;
+    font-size: 20px;
+    table-layout: fixed;
+
+    th {
+        text-align: start;
+        border-bottom: 1px solid rgb(223, 223, 223);
+        font-size: 22px;
+        padding: 0 20px 20px 20px;
+    }
+
+    tr {
+        height: 42px;
+    }
+
+    td {
+        white-space: nowrap;
+        width: 50px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 20px 0 20px;
+    }
+
+    tr:hover {
+        cursor: pointer;
+        background-color: rgb(241, 241, 241);
+    }
+}
+
+.recipe-table-no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 891px;
+    padding-bottom: 120px;
+    text-align: center;
+    font-size: 30px;
+    color: rgb(214, 214, 214);
+}
+
+.pagination-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 70px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 550px;
+    height: 100%;
+    border-radius: 0 0 20px 20px;
+    background-color: white;
+
+    button {
+        font-size: 20px;
+    }
+}
+
+.pagination-inverted-border-radius {
+    width: 100px;
+    height: 100%;
+    background-color: white;
+}
+
+.pagination-inverted-border-radius-mask-1,
+.pagination-inverted-border-radius-mask-2 {
+    position: absolute;
+    width: 100px;
+    height: 80px;
+    background-color: rgb(255, 230, 220);
+}
+
+.pagination-inverted-border-radius-mask-1 {
+    border-radius: 0 20px 0 0;
+}
+
+.pagination-inverted-border-radius-mask-2 {
+    border-radius: 20px 0 0 0;
+}
+
+.skill-Easy {
+    color: rgb(0, 155, 0);
+}
+
+.skill-Moreeffort {
+    color: rgb(255, 145, 0);
+}
+
+.skill-Achallenge {
+    color: red;
 }
