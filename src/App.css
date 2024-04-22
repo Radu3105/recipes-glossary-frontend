@@ -246,6 +246,10 @@
     text-align: center;
 }
 
+.modal-ingredient-item {
+    margin-bottom: 6px;
+}
+
 .modal-content-group {
     display: flex;
     flex-direction: row;
@@ -310,11 +314,11 @@
 .collection-container {
     display: flex;
     flex-wrap: wrap;
-    column-gap: 15px;
+    column-gap: 10px;
     row-gap: 5px;
 }
 
-.collection-item {
+.collection-item-collection, .collection-item-keyword, .collection-item-diet-type {
     padding: 4px;
     padding-left: 10px;
     padding-right: 10px;
@@ -322,5 +326,16 @@
     font-size: 14px;
     font-weight: bold;
     color: white;
-    background-color: red;
+}
+
+.collection-item-collection {
+    background-color: rgb(255, 103, 103);
+}
+
+.collection-item-keyword {
+    background-color: rgb(40, 197, 119);
+}
+
+.collection-item-diet-type {
+    background-color: rgb(105, 96, 226);
 }

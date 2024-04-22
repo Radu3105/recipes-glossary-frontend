@@ -35,13 +35,13 @@ interface RecipeDetails {
 
 const App: React.FC = () => {
     const RECIPES_PER_PAGE: number = 20;
-    
+
     const [recipeData, setRecipeData] = useState<Recipe[]>([]);
     const [recipesByAuthorData, setRecipesByAuthorData] = useState<RecipeByAuthor[]>([]);
     const [recipeDetailsData, setRecipeDetailsData] = useState<RecipeDetails | null>(null);
     const [selectedAuthor, setSelectedAuthor] = useState<string | null>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [authorModalCurrentPage, setAuthorModalCurrentPage] =useState<number>(1);
+    const [authorModalCurrentPage, setAuthorModalCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(0);
     const [totalPagesByAuthor, setTotalPagesByAuthor] = useState<number>(0);
     const [isRecipeModalOpen, setIsRecipeModalOpen] = useState<boolean>(false);
@@ -127,7 +127,9 @@ const App: React.FC = () => {
         await fetchRecipeDetails(recipe.recipeId);
     };
 
-    const handleOnAuthorRecipeClick = async (authorRecipeId: string): Promise<void> => {
+    const handleOnAuthorRecipeClick = async (
+        authorRecipeId: string
+    ): Promise<void> => {
         setIsRecipeModalOpen(true);
         setIsAuthorModalOpen(false);
         await fetchRecipeDetails(authorRecipeId);
@@ -224,16 +226,11 @@ const App: React.FC = () => {
                                 <div className="modal-group-1">
                                     <h2>Description</h2>
                                     <p>{recipeDetailsData.description}</p>
-                                    <h2>
-                                        Ingredients
-                                    </h2>
+                                    <h2>Ingredients</h2>
                                     <ul>
                                         {recipeDetailsData.ingredients.map(
                                             (ingredient) => (
-                                                <li
-                                                    style={{
-                                                        listStyleType: "circle",
-                                                    }}
+                                                <li className="modal-ingredient-item"
                                                     key={ingredient}
                                                 >
                                                     {ingredient}
@@ -242,7 +239,51 @@ const App: React.FC = () => {
                                         )}
                                     </ul>
                                 </div>
-                                <div className="modal-group-2"></div>
+                                <div className="modal-group-2">
+                                    {recipeDetailsData.collections.length >
+                                        0 && (
+                                        <>
+                                            <h2>Collections</h2>
+                                            <div className="collection-container">
+                                                {recipeDetailsData.collections.map(
+                                                    (collection) => (
+                                                        <p className="collection-item-collection">
+                                                            {collection}
+                                                        </p>
+                                                    )
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                    {recipeDetailsData.keywords.length > 0 && (
+                                        <>
+                                            <h2>Keywords</h2>
+                                            <div className="collection-container">
+                                                {recipeDetailsData.keywords.map(
+                                                    (keyword) => (
+                                                        <p className="collection-item-keyword">
+                                                            {keyword}
+                                                        </p>
+                                                    )
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                    {recipeDetailsData.dietTypes.length > 0 && (
+                                        <>
+                                            <h2>Diet Type</h2>
+                                            <div className="collection-container">
+                                                {recipeDetailsData.dietTypes.map(
+                                                    (dietType) => (
+                                                        <p className="collection-item-diet-type">
+                                                            {dietType}
+                                                        </p>
+                                                    )
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </>
                     )}
@@ -257,12 +298,22 @@ const App: React.FC = () => {
                 <Modal onClose={handleCloseModal}>
                     {selectedAuthor && (
                         <>
-                            <h1 className="author-modal-title">{selectedAuthor}</h1>
+                            <h1 className="author-modal-title">
+                                {selectedAuthor}
+                            </h1>
                             <table className="author-table">
                                 <tbody>
                                     {recipesByAuthorData.map(
                                         (recipeByAuthor: RecipeByAuthor) => (
-                                            <tr onClick={() => handleOnAuthorRecipeClick(recipeByAuthor.recipeId)}>{recipeByAuthor.recipeName}</tr>
+                                            <tr
+                                                onClick={() =>
+                                                    handleOnAuthorRecipeClick(
+                                                        recipeByAuthor.recipeId
+                                                    )
+                                                }
+                                            >
+                                                {recipeByAuthor.recipeName}
+                                            </tr>
                                         )
                                     )}
                                 </tbody>
