@@ -6,7 +6,7 @@ import Stack from "@mui/material/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import Modal from "./components/Modal";
-import { sToTime } from "./helpers";
+import { sToTime, capitalizeFirstLetter } from "./helpers";
 
 interface Recipe {
     recipeId: string;
@@ -33,10 +33,23 @@ interface RecipeDetails {
     dietTypes: string[];
 }
 
+interface CommonIngredient {
+    name: string;
+    recipeCount: number;
+}
+
+interface ProlificAuthor {
+    authorName: string;
+    recipeCount: number;
+}
+
 const App: React.FC = () => {
     const RECIPES_PER_PAGE: number = 20;
 
     const [recipeData, setRecipeData] = useState<Recipe[]>([]);
+    const [top5MostCommonRecipes, setTop5MostCommonRecipes] = useState<CommonIngredient[]>([]);
+    const [top5MostProlificAuthors, setTop5MostProlificAuthors] = useState<ProlificAuthor[]>([]);
+    const [top5MostComplexRecipes, setTop5MostComplexRecipes] = useState<Recipe[]>([]);
     const [recipesByAuthorData, setRecipesByAuthorData] = useState<RecipeByAuthor[]>([]);
     const [recipeDetailsData, setRecipeDetailsData] = useState<RecipeDetails | null>(null);
     const [selectedAuthor, setSelectedAuthor] = useState<string | null>("");
@@ -47,8 +60,8 @@ const App: React.FC = () => {
     const [isRecipeModalOpen, setIsRecipeModalOpen] = useState<boolean>(false);
     const [isAuthorModalOpen, setIsAuthorModalOpen] = useState<boolean>(false);
 
-    // Fetch the total number of recipes when the application starts.
     useEffect(() => {
+        // Fetch the total number of recipes when the application starts
         const fetchTotalPages = async (): Promise<void> => {
             try {
                 const response = await axios.get<number>(
@@ -59,10 +72,51 @@ const App: React.FC = () => {
                 console.error("Error " + error);
             }
         };
+
+        // Fetch the top 5 most common ingredients when the application starts
+        const fetchTop5MostCommonIngredients = async (): Promise<void> => {
+            try {
+                const response = await axios.get<CommonIngredient[]>(
+                    `https://localhost:44389/Recipes/top-5-most-common-ingredients`
+                );
+                setTop5MostCommonRecipes(response.data);
+            } catch (error) {
+                console.error("Error " + error);
+            }
+        };
+
+        // Fetch the top 5 most prolific authors when the application starts
+        const fetchTop5MostProlificAuthors = async (): Promise<void> => {
+            try {
+                const response = await axios.get<ProlificAuthor[]>(
+                    `https://localhost:44389/Recipes/top-5-most-prolific-authors`
+                );
+                setTop5MostProlificAuthors(response.data);
+            } catch (error) {
+                console.error("Error " + error);
+            }
+        };
+
+        // Fetch the top 5 most complex recipes when the application starts
+        const fetchTop5MostComplexRecipes = async (): Promise<void> => {
+            try {
+                const response = await axios.get<Recipe[]>(
+                    `https://localhost:44389/Recipes/top-5-most-complex-recipes`
+                );
+                setTop5MostComplexRecipes(response.data);
+            } catch (error) {
+                console.error("Error " + error);
+            }
+        };
+
         fetchTotalPages();
+        fetchTop5MostProlificAuthors();
+        fetchTop5MostCommonIngredients();
+        fetchTop5MostComplexRecipes();
     }, []);
 
-    // Fetch the recipes when the application starts and when the current page changes (for paginated results).
+
+    // Fetch the recipes when the application starts and when the current page changes (for paginated results)
     useEffect(() => {
         const fetchRecipes = async (): Promise<void> => {
             try {
@@ -74,6 +128,7 @@ const App: React.FC = () => {
                 console.error("Error " + error);
             }
         };
+        
         fetchRecipes();
     }, [currentPage]);
 
@@ -83,7 +138,7 @@ const App: React.FC = () => {
         }
     }, [authorModalCurrentPage, selectedAuthor]);
 
-    // Fetch the total number of recipes for a specific author.
+    // Fetch the total number of recipes for a specific author
     const fetchTotalPagesByAuthor = async (
         authorName: string
     ): Promise<void> => {
@@ -225,8 +280,8 @@ const App: React.FC = () => {
                             <div className="modal-content-group">
                                 <div className="modal-group-1">
                                     <h2>Description</h2>
-                                    <p>{recipeDetailsData.description}</p>
-                                    <h2>Ingredients</h2>
+                                    <p>{recipeDetailsData.description + "."}</p>
+                                    <h2>Ingredients ({recipeDetailsData.ingredients.length})</h2>
                                     <ul>
                                         {recipeDetailsData.ingredients.map(
                                             (ingredient) => (
@@ -240,8 +295,7 @@ const App: React.FC = () => {
                                     </ul>
                                 </div>
                                 <div className="modal-group-2">
-                                    {recipeDetailsData.collections.length >
-                                        0 && (
+                                    {recipeDetailsData.collections.length > 0 && (
                                         <>
                                             <h2>Collections</h2>
                                             <div className="collection-container">
@@ -338,6 +392,130 @@ const App: React.FC = () => {
         }
     };
 
+    const renderTopItems = (): ReactElement => {
+        return (
+            <div className="top-5-container">
+                <div className="top-5-most-common-ingredients">
+                    <div
+                        onMouseDown={(event) => event.stopPropagation()}
+                        className="top-5-title"
+                    >
+                        <p className="top-5-title-number">5</p>
+                        <div className="top-5-title-text">
+                            <p>Most</p>
+                            <p>Common</p>
+                            <p>Ingredients</p>
+                        </div>
+                    </div>
+                    <div className="top-5-content">
+                        {top5MostCommonRecipes.map(
+                            (
+                                ingredient: CommonIngredient,
+                                counter: number = 0
+                            ) => (
+                                <div className="top-5-content-item">
+                                    <div>
+                                        <h2>{++counter}.</h2>
+                                    </div>
+                                    <div>
+                                        <h3>
+                                            {capitalizeFirstLetter(
+                                                ingredient.name
+                                            )}
+                                        </h3>
+                                        <p>
+                                            Found in {ingredient.recipeCount}{" "}
+                                            recipes
+                                        </p>
+                                    </div>
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+                <div className="top-5-most-prolific-authors">
+                    <div
+                        onMouseDown={(event) => event.stopPropagation()}
+                        className="top-5-title"
+                    >
+                        <p className="top-5-title-number">5</p>
+                        <div className="top-5-title-text">
+                            <p>Most</p>
+                            <p>Prolific</p>
+                            <p>Authors</p>
+                        </div>
+                    </div>
+                    <div className="top-5-content">
+                        {top5MostProlificAuthors.map(
+                            (author: ProlificAuthor, counter: number = 0) => (
+                                <div
+                                    onClick={(event) =>
+                                        handleOnAuthorClick(
+                                            event,
+                                            author.authorName
+                                        )
+                                    }
+                                    className="top-5-content-item"
+                                >
+                                    <div>
+                                        <h2>{++counter}.</h2>
+                                    </div>
+                                    <div>
+                                        <h3>{author.authorName}</h3>
+                                        <p>
+                                            Wrote {author.recipeCount} recipes
+                                        </p>
+                                    </div>
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+                <div className="top-5-most-complex-recipes">
+                    <div
+                        onMouseDown={(event) => event.stopPropagation()}
+                        className="top-5-title"
+                    >
+                        <p className="top-5-title-number">5</p>
+                        <div className="top-5-title-text">
+                            <p>Most</p>
+                            <p>Complex</p>
+                            <p>Recipes</p>
+                        </div>
+                    </div>
+                    <div className="top-5-content">
+                        {top5MostComplexRecipes.map(
+                            (recipe: Recipe, counter: number = 0) => (
+                                <div
+                                    onClick={() => handleOnRecipeClick(recipe)}
+                                    className="top-5-content-item"
+                                >
+                                    <div>
+                                    <h2>{++counter}.</h2>
+                                    </div>
+                                    <div>
+                                        <h3>{recipe.recipeName}</h3>
+                                        <p><i>by {recipe.authorName}</i></p>
+                                        <p>
+                                            # of Ingredients :{" "}
+                                            <b>{recipe.ingredientCount}</b>
+                                        </p>
+                                        <p>
+                                            Skill: {" "}
+                                            <span className={"skill-" + recipe.skillLevel.split(" ").join("")}>
+                                                {recipe.skillLevel}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="app-container">
             {renderRecipeDetailsModal()}
@@ -359,6 +537,7 @@ const App: React.FC = () => {
                 </p>
             </div>
             <div className="main-group">
+                {renderTopItems()}
                 <div className="table-group">
                     <table className="recipe-table">
                         <thead>
