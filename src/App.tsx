@@ -5,6 +5,7 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import Modal from "./components/Modal";
 import { sToTime, capitalizeFirstLetter } from "./helpers";
 
@@ -33,6 +34,16 @@ interface RecipeDetails {
     dietTypes: string[];
 }
 
+interface SortConfig {
+    sortBy: string;
+    order: string;
+}
+
+interface SearchRecipe {
+    recipes: Recipe[];
+    totalCount: number;
+}
+
 interface CommonIngredient {
     name: string;
     recipeCount: number;
@@ -47,12 +58,14 @@ const App: React.FC = () => {
     const RECIPES_PER_PAGE: number = 20;
 
     const [recipeData, setRecipeData] = useState<Recipe[]>([]);
+    const [selectedSortConfig, setSelectedSortConfig] = useState<SortConfig>({sortBy: "name", order: "ASC"});
+    const [searchQuery, setSearchQuery] = useState('');
     const [top5MostCommonRecipes, setTop5MostCommonRecipes] = useState<CommonIngredient[]>([]);
     const [top5MostProlificAuthors, setTop5MostProlificAuthors] = useState<ProlificAuthor[]>([]);
     const [top5MostComplexRecipes, setTop5MostComplexRecipes] = useState<Recipe[]>([]);
     const [recipesByAuthorData, setRecipesByAuthorData] = useState<RecipeByAuthor[]>([]);
     const [recipeDetailsData, setRecipeDetailsData] = useState<RecipeDetails | null>(null);
-    const [selectedAuthor, setSelectedAuthor] = useState<string | null>("");
+    const [selectedAuthor, setSelectedAuthor] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [authorModalCurrentPage, setAuthorModalCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(0);
@@ -61,18 +74,6 @@ const App: React.FC = () => {
     const [isAuthorModalOpen, setIsAuthorModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        // Fetch the total number of recipes when the application starts
-        const fetchTotalPages = async (): Promise<void> => {
-            try {
-                const response = await axios.get<number>(
-                    "https://localhost:44389/Recipes/count"
-                );
-                setTotalPages(Math.ceil(response.data / RECIPES_PER_PAGE));
-            } catch (error) {
-                console.error("Error " + error);
-            }
-        };
-
         // Fetch the top 5 most common ingredients when the application starts
         const fetchTop5MostCommonIngredients = async (): Promise<void> => {
             try {
@@ -118,18 +119,12 @@ const App: React.FC = () => {
 
     // Fetch the recipes when the application starts and when the current page changes (for paginated results)
     useEffect(() => {
-        const fetchRecipes = async (): Promise<void> => {
-            try {
-                const response = await axios.get<Recipe[]>(
-                    `https://localhost:44389/Recipes?pageNumber=${currentPage}`
-                );
-                setRecipeData(response.data);
-            } catch (error) {
-                console.error("Error " + error);
-            }
-        };
-        
-        fetchRecipes();
+        if (searchQuery === '') {
+            fetchRecipes();
+        }
+        else {
+            fetchSearchRecipes(searchQuery);
+        }
     }, [currentPage]);
 
     useEffect(() => {
@@ -137,6 +132,37 @@ const App: React.FC = () => {
             fetchRecipesByAuthor(selectedAuthor);
         }
     }, [authorModalCurrentPage, selectedAuthor]);
+
+    useEffect(() => {
+        if (searchQuery === '') {
+            fetchRecipes();
+            fetchTotalPages();
+            setCurrentPage(1);
+        }
+    }, [searchQuery]);
+
+    const fetchRecipes = async (): Promise<void> => {
+        try {
+            const response = await axios.get<Recipe[]>(
+                `https://localhost:44389/Recipes?pageNumber=${currentPage}&sortBy=${selectedSortConfig["sortBy"]}&sortOrder=${selectedSortConfig["order"]}`
+            );
+            setRecipeData(response.data);
+        } catch (error) {
+            console.error("Error " + error);
+        }
+    };
+
+    // Fetch the total number of recipes when the application starts
+    const fetchTotalPages = async (): Promise<void> => {
+        try {
+            const response = await axios.get<number>(
+                "https://localhost:44389/Recipes/count"
+            );
+            setTotalPages(Math.ceil(response.data / RECIPES_PER_PAGE));
+        } catch (error) {
+            console.error("Error " + error);
+        }
+    };
 
     // Fetch the total number of recipes for a specific author
     const fetchTotalPagesByAuthor = async (
@@ -171,6 +197,19 @@ const App: React.FC = () => {
                 `https://localhost:44389/Recipes/${authorName}/${authorModalCurrentPage}`
             );
             setRecipesByAuthorData(response.data);
+        } catch (error) {
+            console.error("Error " + error);
+        }
+    };
+
+    // Fetch the recipes by a specific search query
+    const fetchSearchRecipes = async (searchQuery: string): Promise<void> => {
+        try {
+            const response = await axios.get<SearchRecipe>(
+                `https://localhost:44389/Recipes/search?pageNumber=${currentPage}&searchQuery=${searchQuery}`
+            );
+            setRecipeData(response.data["recipes"]);
+            setTotalPages(Math.ceil(response.data["totalCount"] / RECIPES_PER_PAGE));
         } catch (error) {
             console.error("Error " + error);
         }
@@ -224,6 +263,16 @@ const App: React.FC = () => {
             await fetchRecipesByAuthor(selectedAuthor);
         }
     };
+
+    const handleSearchInputChange = (event) => {
+        setSearchQuery(event.target.value);
+    }
+
+    const handleSearchSubmit = (event) => {
+        event.preventDefault();
+        fetchSearchRecipes(searchQuery);
+        setCurrentPage(1);
+    }
 
     const renderRecipes = (): ReactElement[] => {
         return recipeData.map((recipe: Recipe) => (
@@ -392,7 +441,7 @@ const App: React.FC = () => {
         }
     };
 
-    const renderTopItems = (): ReactElement => {
+    const renderTop5Items = (): ReactElement => {
         return (
             <div className="top-5-container">
                 <div className="top-5-most-common-ingredients">
@@ -537,8 +586,26 @@ const App: React.FC = () => {
                 </p>
             </div>
             <div className="main-group">
-                {renderTopItems()}
+                {renderTop5Items()}
                 <div className="table-group">
+                    <div className="table-func-group">
+                        <form
+                            className="search-group"
+                            onSubmit={handleSearchSubmit}
+                        >
+                            <input
+                                type="search"
+                                placeholder="Search by recipe name"
+                                onChange={handleSearchInputChange}
+                            />
+                            <button type="submit">
+                                <FontAwesomeIcon
+                                    icon={faMagnifyingGlass}
+                                    size="lg"
+                                />
+                            </button>
+                        </form>
+                    </div>
                     <table className="recipe-table">
                         <thead>
                             <tr>
