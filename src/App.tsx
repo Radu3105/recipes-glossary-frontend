@@ -5,7 +5,7 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faFilter, faMagnifyingGlass, faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import Modal from "./components/Modal";
 import { sToTime, capitalizeFirstLetter } from "./helpers";
 
@@ -37,11 +37,8 @@ interface RecipeDetails {
 interface SortConfig {
     sortBy: string;
     order: string;
-}
-
-interface SearchRecipe {
-    recipes: Recipe[];
-    totalCount: number;
+    searchQuery: string;
+    ingredientFilters: string[];
 }
 
 interface CommonIngredient {
@@ -58,7 +55,16 @@ const App: React.FC = () => {
     const RECIPES_PER_PAGE: number = 20;
 
     const [recipeData, setRecipeData] = useState<Recipe[]>([]);
-    const [selectedSortConfig, setSelectedSortConfig] = useState<SortConfig>({sortBy: "name", order: "ASC"});
+    const [recipeDataConfig, setRecipeDataConfig] =
+        useState<SortConfig>({
+            sortBy: "name",
+            order: "ASC",
+            searchQuery: "",
+            ingredientFilters: [],
+        });
+    const [filters, setFilters] = useState<string[]>([]);
+    const [activeFilters, setActiveFilters] = useState<string[]>([]);
+    const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [top5MostCommonRecipes, setTop5MostCommonRecipes] = useState<CommonIngredient[]>([]);
     const [top5MostProlificAuthors, setTop5MostProlificAuthors] = useState<ProlificAuthor[]>([]);
@@ -110,22 +116,10 @@ const App: React.FC = () => {
             }
         };
 
-        fetchTotalPages();
         fetchTop5MostProlificAuthors();
         fetchTop5MostCommonIngredients();
         fetchTop5MostComplexRecipes();
     }, []);
-
-
-    // Fetch the recipes when the application starts and when the current page changes (for paginated results)
-    useEffect(() => {
-        if (searchQuery === '') {
-            fetchRecipes();
-        }
-        else {
-            fetchSearchRecipes(searchQuery);
-        }
-    }, [currentPage]);
 
     useEffect(() => {
         if (selectedAuthor) {
@@ -134,31 +128,55 @@ const App: React.FC = () => {
     }, [authorModalCurrentPage, selectedAuthor]);
 
     useEffect(() => {
+        const fetchIngredients = async (): Promise<void> => {
+            try {
+                const response = await axios.get<string[]>(
+                    `https://localhost:44389/Ingredients`
+                );
+                setFilters(response.data);
+            } catch (error) {
+                console.error("Error " + error);
+            }
+        };
+
+        fetchIngredients(); 
+    }, [activeFilters]);
+
+    useEffect(() => {
         if (searchQuery === '') {
-            fetchRecipes();
-            fetchTotalPages();
             setCurrentPage(1);
         }
     }, [searchQuery]);
 
-    const fetchRecipes = async (): Promise<void> => {
+    useEffect(() => {
+        fetchRecipes(
+            currentPage,
+            recipeDataConfig["sortBy"],
+            recipeDataConfig["order"],
+            recipeDataConfig["searchQuery"],
+            recipeDataConfig["ingredientFilters"]
+        );
+        console.log(recipeDataConfig);
+    }, [currentPage, activeFilters, recipeDataConfig]);
+
+    const fetchRecipes = async (pageNumber, sortBy, sortOrder, searchQuery, ingredientFilters): Promise<void> => {
+        const config = {
+            params: {
+                pageNumber,
+                sortBy,
+                sortOrder,
+                searchQuery,
+                ingredientFilters
+            }
+        };
+
         try {
             const response = await axios.get<Recipe[]>(
-                `https://localhost:44389/Recipes?pageNumber=${currentPage}&sortBy=${selectedSortConfig["sortBy"]}&sortOrder=${selectedSortConfig["order"]}`
+                `https://localhost:44389/Recipes`,
+                config
             );
-            setRecipeData(response.data);
-        } catch (error) {
-            console.error("Error " + error);
-        }
-    };
-
-    // Fetch the total number of recipes when the application starts
-    const fetchTotalPages = async (): Promise<void> => {
-        try {
-            const response = await axios.get<number>(
-                "https://localhost:44389/Recipes/count"
-            );
-            setTotalPages(Math.ceil(response.data / RECIPES_PER_PAGE));
+            setRecipeData(response.data["recipes"]);
+            setTotalPages(Math.ceil(response.data["totalCount"] / RECIPES_PER_PAGE));
         } catch (error) {
             console.error("Error " + error);
         }
@@ -197,19 +215,6 @@ const App: React.FC = () => {
                 `https://localhost:44389/Recipes/${authorName}/${authorModalCurrentPage}`
             );
             setRecipesByAuthorData(response.data);
-        } catch (error) {
-            console.error("Error " + error);
-        }
-    };
-
-    // Fetch the recipes by a specific search query
-    const fetchSearchRecipes = async (searchQuery: string): Promise<void> => {
-        try {
-            const response = await axios.get<SearchRecipe>(
-                `https://localhost:44389/Recipes/search?pageNumber=${currentPage}&searchQuery=${searchQuery}`
-            );
-            setRecipeData(response.data["recipes"]);
-            setTotalPages(Math.ceil(response.data["totalCount"] / RECIPES_PER_PAGE));
         } catch (error) {
             console.error("Error " + error);
         }
@@ -264,15 +269,86 @@ const App: React.FC = () => {
         }
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchQuery(event.target.value);
-    }
-
     const handleSearchSubmit = (event) => {
         event.preventDefault();
-        fetchSearchRecipes(searchQuery);
+        setRecipeDataConfig({...recipeDataConfig, searchQuery: searchQuery});
         setCurrentPage(1);
-    }
+    };
+
+    const handleSearchInputChange = (event) => {
+        setSearchQuery(event.target.value);
+        if (event.target.value === "") {
+            setRecipeDataConfig({...recipeDataConfig, searchQuery: event.target.value});
+            setCurrentPage(1);
+            fetchRecipes(
+                currentPage,
+                recipeDataConfig["sortBy"],
+                recipeDataConfig["order"],
+                recipeDataConfig["searchQuery"],
+                recipeDataConfig["ingredientFilters"]
+            );
+        }
+    };
+
+    const handleFilterItemClick = async (ingredientFilterName: string) => {
+        // setActiveFilters([...activeFilters, ingredientFilterName]);
+        const newIngredientFilters = recipeDataConfig["ingredientFilters"];
+        newIngredientFilters.push(ingredientFilterName);
+        setRecipeDataConfig({...recipeDataConfig, ingredientFilters: newIngredientFilters});
+    };
+
+    const handleActiveFilterItemClick = async (activeFilter: string) => {
+        const newFilters = activeFilters.filter((filter) => filter !== activeFilter);
+        setActiveFilters(newFilters);
+    };
+
+    const renderFilterDropdown = (): ReactElement | undefined => {
+        if (isFilterDropdownOpen) {
+            return (
+                <div className="filter-dropdown">
+                    {activeFilters.length > 0 && (
+                        <>
+                            <h4 style={{ color: "dodgerblue" }}>
+                                Active filters
+                            </h4>
+                            <hr></hr>
+                            <div>
+                                {activeFilters.map(
+                                    (activeIngredientFilter: string) => (
+                                        <div>
+                                            <p
+                                                onClick={() =>
+                                                    handleActiveFilterItemClick(
+                                                        activeIngredientFilter
+                                                    )
+                                                }
+                                                style={{ color: "dodgerblue" }}
+                                            >
+                                                {activeIngredientFilter}
+                                            </p>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                        </>
+                    )}
+                    <h4>Search results</h4>
+                    <hr></hr>
+                    {filters.map((ingredientFilter) => (
+                        <div>
+                            <p
+                                onClick={() =>
+                                    handleFilterItemClick(ingredientFilter.name)
+                                }
+                            >
+                                {ingredientFilter.name}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+    };
 
     const renderRecipes = (): ReactElement[] => {
         return recipeData.map((recipe: Recipe) => (
@@ -565,6 +641,46 @@ const App: React.FC = () => {
         );
     };
 
+    const renderTableHeaderItem = (
+        name: string,
+        sortBy: string,
+        width: string
+    ): ReactElement => {
+        let icon;
+        if (recipeDataConfig["sortBy"] === sortBy) {
+            if (recipeDataConfig["order"] === "ASC") {
+                icon = <FontAwesomeIcon icon={faSortUp} />;
+            } else {
+                icon = <FontAwesomeIcon icon={faSortDown} />;
+            }
+        } else {
+            icon = <FontAwesomeIcon icon={faSort} />;
+        }
+
+        return (
+            <th
+                onClick={() => {
+                        setRecipeDataConfig({
+                            ...recipeDataConfig,
+                            sortBy: sortBy,
+                            order:
+                                recipeDataConfig["order"] === "ASC"
+                                    ? "DESC"
+                                    : "ASC",
+                        });
+                        setCurrentPage(1);
+                    }
+                }
+                style={{ width: width }}
+            >
+                <div>
+                    <p>{name}</p>
+                    {icon}
+                </div>
+            </th>
+        );
+    };
+
     return (
         <div className="app-container">
             {renderRecipeDetailsModal()}
@@ -590,6 +706,33 @@ const App: React.FC = () => {
                 <div className="table-group">
                     <div className="table-func-group">
                         <form
+                            className="filter-group"
+                            onClick={() => setIsFilterDropdownOpen(true)}
+                            onMouseLeave={() => setIsFilterDropdownOpen(false)}
+                        >
+                            {renderFilterDropdown()}
+                            <input
+                                type="search"
+                                placeholder="Filter by ingredients"
+                            />
+                            {activeFilters.length === 0 ? (
+                                <p style={{ color: "gray" }}>Inactive</p>
+                            ) : (
+                                <p style={{ color: "dodgerblue" }}>Active</p>
+                            )}
+                            <button type="submit">
+                                <FontAwesomeIcon
+                                    icon={faFilter}
+                                    size="lg"
+                                    color={
+                                        activeFilters.length === 0
+                                            ? "gray"
+                                            : "dodgerblue"
+                                    }
+                                />
+                            </button>
+                        </form>
+                        <form
                             className="search-group"
                             onSubmit={handleSearchSubmit}
                         >
@@ -609,10 +752,10 @@ const App: React.FC = () => {
                     <table className="recipe-table">
                         <thead>
                             <tr>
-                                <th style={{ width: "45%" }}>Name</th>
+                                {renderTableHeaderItem("Name", "name", "45%")}
                                 <th style={{ width: "25%" }}>Author</th>
-                                <th style={{ width: "15%" }}># of Ingr.</th>
-                                <th style={{ width: "15%" }}>Skill Level</th>
+                                {renderTableHeaderItem("# of Ingr.", "ingredientCount", "15%")}
+                                {renderTableHeaderItem("Skill Level", "skillLevel", "15%")}
                             </tr>
                         </thead>
                         <tbody>{renderRecipes()}</tbody>

@@ -30,6 +30,6 @@ export const sToTime = (seconds: number): string => {
 };
 
 // Helper function to capitalize first letter of a string
-export function capitalizeFirstLetter(string: string) {
+export const capitalizeFirstLetter = (string: string): string => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
