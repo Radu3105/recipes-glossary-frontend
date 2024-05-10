@@ -140,6 +140,7 @@ const App: React.FC = () => {
         };
 
         fetchIngredients(); 
+        setCurrentPage(1);
     }, [activeFilters]);
 
     useEffect(() => {
@@ -157,30 +158,43 @@ const App: React.FC = () => {
             recipeDataConfig["ingredientFilters"]
         );
         console.log(recipeDataConfig);
-    }, [currentPage, activeFilters, recipeDataConfig]);
+    }, [currentPage, recipeDataConfig]);
 
-    const fetchRecipes = async (pageNumber, sortBy, sortOrder, searchQuery, ingredientFilters): Promise<void> => {
-        const config = {
-            params: {
-                pageNumber,
-                sortBy,
-                sortOrder,
-                searchQuery,
-                ingredientFilters
-            }
-        };
+    const fetchRecipes = async (
+        pageNumber: number,
+        sortBy: string,
+        sortOrder: string,
+        searchQuery: string,
+        ingredientFilters: string[]
+    ): Promise<void> => {
+        const baseUrl = `https://localhost:44389/Recipes`;
+        const params = new URLSearchParams({
+            pageNumber: pageNumber.toString(),
+            sortBy,
+            sortOrder,
+            ...(searchQuery && { searchQuery }),
+            ...(ingredientFilters.length > 0 && {
+                ingredientFilters: ingredientFilters.join(","),
+            }), // Join array into a comma-separated string if your API expects it this way
+        }).toString();
+
+        console.log(params);
+
+        const fullUrl = `${baseUrl}?${params}`;
+
+        console.log("Calling API URL:", fullUrl); // Log the full URL
 
         try {
-            const response = await axios.get<Recipe[]>(
-                `https://localhost:44389/Recipes`,
-                config
-            );
+            const response = await axios.get(fullUrl); // Use the full URL directly
             setRecipeData(response.data["recipes"]);
-            setTotalPages(Math.ceil(response.data["totalCount"] / RECIPES_PER_PAGE));
+            setTotalPages(
+                Math.ceil(response.data["totalCount"] / RECIPES_PER_PAGE)
+            );
         } catch (error) {
-            console.error("Error " + error);
+            console.error("Error fetching recipes:", error);
         }
     };
+    
 
     // Fetch the total number of recipes for a specific author
     const fetchTotalPagesByAuthor = async (
@@ -291,7 +305,7 @@ const App: React.FC = () => {
     };
 
     const handleFilterItemClick = async (ingredientFilterName: string) => {
-        // setActiveFilters([...activeFilters, ingredientFilterName]);
+        setActiveFilters([...activeFilters, ingredientFilterName]);
         const newIngredientFilters = recipeDataConfig["ingredientFilters"];
         newIngredientFilters.push(ingredientFilterName);
         setRecipeDataConfig({...recipeDataConfig, ingredientFilters: newIngredientFilters});
@@ -300,6 +314,7 @@ const App: React.FC = () => {
     const handleActiveFilterItemClick = async (activeFilter: string) => {
         const newFilters = activeFilters.filter((filter) => filter !== activeFilter);
         setActiveFilters(newFilters);
+        setRecipeDataConfig({...recipeDataConfig, ingredientFilters: newFilters});
     };
 
     const renderFilterDropdown = (): ReactElement | undefined => {
@@ -332,7 +347,7 @@ const App: React.FC = () => {
                             </div>
                         </>
                     )}
-                    <h4>Search results</h4>
+                    <h4>All filters</h4>
                     <hr></hr>
                     {filters.map((ingredientFilter) => (
                         <div>
@@ -705,16 +720,15 @@ const App: React.FC = () => {
                 {renderTop5Items()}
                 <div className="table-group">
                     <div className="table-func-group">
-                        <form
+                        <div
                             className="filter-group"
                             onClick={() => setIsFilterDropdownOpen(true)}
                             onMouseLeave={() => setIsFilterDropdownOpen(false)}
                         >
                             {renderFilterDropdown()}
-                            <input
-                                type="search"
-                                placeholder="Filter by ingredients"
-                            />
+                            <p style={{ marginRight: "20px", color: "gray" }}>
+                                Select ingredient filters
+                            </p>
                             {activeFilters.length === 0 ? (
                                 <p style={{ color: "gray" }}>Inactive</p>
                             ) : (
@@ -731,7 +745,7 @@ const App: React.FC = () => {
                                     }
                                 />
                             </button>
-                        </form>
+                        </div>
                         <form
                             className="search-group"
                             onSubmit={handleSearchSubmit}
@@ -754,8 +768,16 @@ const App: React.FC = () => {
                             <tr>
                                 {renderTableHeaderItem("Name", "name", "45%")}
                                 <th style={{ width: "25%" }}>Author</th>
-                                {renderTableHeaderItem("# of Ingr.", "ingredientCount", "15%")}
-                                {renderTableHeaderItem("Skill Level", "skillLevel", "15%")}
+                                {renderTableHeaderItem(
+                                    "# of Ingr.",
+                                    "ingredientCount",
+                                    "15%"
+                                )}
+                                {renderTableHeaderItem(
+                                    "Skill Level",
+                                    "skillLevel",
+                                    "15%"
+                                )}
                             </tr>
                         </thead>
                         <tbody>{renderRecipes()}</tbody>
