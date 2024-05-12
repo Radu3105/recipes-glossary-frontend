@@ -6,6 +6,7 @@ import Stack from "@mui/material/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faFilter, faMagnifyingGlass, faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
+import background from "./assets/doodle_food_pattern_new.jpg";
 import Modal from "./components/Modal";
 import { sToTime, capitalizeFirstLetter } from "./helpers";
 
@@ -631,18 +632,30 @@ const App: React.FC = () => {
                                     className="top-5-content-item"
                                 >
                                     <div>
-                                    <h2>{++counter}.</h2>
-                                    </div>
-                                    <div>
-                                        <h3>{recipe.recipeName}</h3>
-                                        <p><i>by {recipe.authorName}</i></p>
+                                        <h3>
+                                            {++counter}. {recipe.recipeName}
+                                        </h3>
+                                        <p>
+                                            <i>by {recipe.authorName}</i>
+                                        </p>
                                         <p>
                                             # of Ingredients :{" "}
                                             <b>{recipe.ingredientCount}</b>
                                         </p>
                                         <p>
                                             Skill: {" "}
-                                            <span className={"skill-" + recipe.skillLevel.split(" ").join("")}>
+                                            <span
+                                                style={{
+                                                    textShadow:
+                                                        "1px 1px 1px rgb(75, 75, 75)",
+                                                }}
+                                                className={
+                                                    "skill-" +
+                                                    recipe.skillLevel
+                                                        .split(" ")
+                                                        .join("")
+                                                }
+                                            >
                                                 {recipe.skillLevel}
                                             </span>
                                         </p>
@@ -697,95 +710,112 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="app-container">
-            {renderRecipeDetailsModal()}
-            {renderAuthorDetailsModal()}
-            <div className="app-title">
-                <h1>Recipes Glossary</h1>
-                <p>
-                    by Radu Cristian Gîrlea |{" "}
-                    <span>
-                        <a href="https://github.com/Radu3105" target="_blank">
-                            <FontAwesomeIcon
-                                icon={faGithub}
-                                size="lg"
-                                color="white"
-                            />{" "}
-                            Radu3105
-                        </a>
-                    </span>
-                </p>
-            </div>
-            <div className="main-group">
-                {renderTop5Items()}
-                <div className="table-group">
-                    <div className="table-func-group">
-                        <div
-                            className="filter-group"
-                            onClick={() => setIsFilterDropdownOpen(true)}
-                            onMouseLeave={() => setIsFilterDropdownOpen(false)}
-                        >
-                            {renderFilterDropdown()}
-                            <p style={{ marginRight: "20px", color: "gray" }}>
-                                Select ingredient filters
-                            </p>
-                            {activeFilters.length === 0 ? (
-                                <p style={{ color: "gray" }}>Inactive</p>
-                            ) : (
-                                <p style={{ color: "dodgerblue" }}>Active</p>
-                            )}
-                            <button type="submit">
+        <div
+            className="app-background"
+            style={{ backgroundImage: `url(${background})` }}
+        >
+            <div className="app-container">
+                {renderRecipeDetailsModal()}
+                {renderAuthorDetailsModal()}
+                <div className="app-title">
+                    <h1>Recipes Glossary</h1>
+                    <p>
+                        by Radu Cristian Gîrlea | {" "}
+                        <span>
+                            <a
+                                href="https://github.com/Radu3105"
+                                target="_blank"
+                            >
                                 <FontAwesomeIcon
-                                    icon={faFilter}
+                                    icon={faGithub}
                                     size="lg"
-                                    color={
-                                        activeFilters.length === 0
-                                            ? "gray"
-                                            : "dodgerblue"
-                                    }
-                                />
-                            </button>
-                        </div>
-                        <form
-                            className="search-group"
-                            onSubmit={handleSearchSubmit}
-                        >
-                            <input
-                                type="search"
-                                placeholder="Search by recipe name"
-                                onChange={handleSearchInputChange}
-                            />
-                            <button type="submit">
-                                <FontAwesomeIcon
-                                    icon={faMagnifyingGlass}
-                                    size="lg"
-                                />
-                            </button>
-                        </form>
-                    </div>
-                    <table className="recipe-table">
-                        <thead>
-                            <tr>
-                                {renderTableHeaderItem("Name", "name", "45%")}
-                                <th style={{ width: "25%" }}>Author</th>
-                                {renderTableHeaderItem(
-                                    "# of Ingr.",
-                                    "ingredientCount",
-                                    "15%"
+                                    color="rgb(191 155 0)"
+                                />{" "}
+                                Radu3105
+                            </a>
+                        </span>
+                    </p>
+                </div>
+                <div className="main-group">
+                    {renderTop5Items()}
+                    <div className="table-group">
+                        <div className="table-func-group">
+                            <div
+                                className="filter-group"
+                                onClick={() => setIsFilterDropdownOpen(true)}
+                                onMouseLeave={() =>
+                                    setIsFilterDropdownOpen(false)
+                                }
+                            >
+                                {renderFilterDropdown()}
+                                <p
+                                    style={{
+                                        marginRight: "20px",
+                                        color: "gray",
+                                    }}
+                                >
+                                    Select ingredient filters
+                                </p>
+                                {activeFilters.length === 0 ? (
+                                    <p style={{ color: "gray" }}>Inactive</p>
+                                ) : (
+                                    <p style={{ color: "dodgerblue" }}>
+                                        Active
+                                    </p>
                                 )}
-                                {renderTableHeaderItem(
-                                    "Skill Level",
-                                    "skillLevel",
-                                    "15%"
-                                )}
-                            </tr>
-                        </thead>
-                        <tbody>{renderRecipes()}</tbody>
-                    </table>
-                    <div className="pagination-group">
-                        <div className="pagination-inverted-border-radius">
-                            <div className="pagination-inverted-border-radius-mask-1"></div>
+                                <button type="submit">
+                                    <FontAwesomeIcon
+                                        icon={faFilter}
+                                        size="lg"
+                                        color={
+                                            activeFilters.length === 0
+                                                ? "gray"
+                                                : "dodgerblue"
+                                        }
+                                    />
+                                </button>
+                            </div>
+                            <form
+                                className="search-group"
+                                onSubmit={handleSearchSubmit}
+                            >
+                                <input
+                                    type="search"
+                                    placeholder="Search by recipe name"
+                                    onChange={handleSearchInputChange}
+                                />
+                                <button type="submit">
+                                    <FontAwesomeIcon
+                                        icon={faMagnifyingGlass}
+                                        size="lg"
+                                        color="gray"
+                                    />
+                                </button>
+                            </form>
                         </div>
+                        <table className="recipe-table">
+                            <thead>
+                                <tr>
+                                    {renderTableHeaderItem(
+                                        "Name",
+                                        "name",
+                                        "45%"
+                                    )}
+                                    <th style={{ width: "25%" }}>Author</th>
+                                    {renderTableHeaderItem(
+                                        "# of Ingr.",
+                                        "ingredientCount",
+                                        "15%"
+                                    )}
+                                    {renderTableHeaderItem(
+                                        "Skill Level",
+                                        "skillLevel",
+                                        "15%"
+                                    )}
+                                </tr>
+                            </thead>
+                            <tbody>{renderRecipes()}</tbody>
+                        </table>
                         <div className="pagination">
                             <Stack spacing={2}>
                                 <Pagination
@@ -794,9 +824,6 @@ const App: React.FC = () => {
                                     onChange={handlePageChange}
                                 />
                             </Stack>
-                        </div>
-                        <div className="pagination-inverted-border-radius">
-                            <div className="pagination-inverted-border-radius-mask-2"></div>
                         </div>
                     </div>
                 </div>

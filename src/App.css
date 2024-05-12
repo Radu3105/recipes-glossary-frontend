@@ -1,17 +1,25 @@
+.app-background {
+    background-size: cover;
+    background-repeat: no-repeat;
+    /* filter: blur(8px);
+    z-index: -1; */
+}
+
 .app-container {
     display: flex;
     flex-direction: column;
     width: 75%;
     height: 100vh;
-    padding: 50px 0 0 0;
+    padding: 40px 0 0 0;
     margin: auto;
+    /* z-index: 1; */
 }
 
 .app-title {
     text-align: center;
     font-size: 35px;
-    color: white;
-    text-shadow: 2px 2px 5px rgb(146, 146, 146);
+    color: rgb(191 155 0);
+    text-shadow: 6px 6px 10px rgb(146, 146, 146);
 
     * {
         margin: 0;
@@ -27,7 +35,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin-top: 50px;
+    margin-top: 45px;
 }
 
 .top-5-container {
@@ -36,7 +44,8 @@
     flex-direction: column;
     align-items: center;
     gap: 75px;
-    width: 25%;
+    width: 400px;
+    z-index: 2;
 }
 
 .top-5-most-common-ingredients,
@@ -51,12 +60,33 @@
     height: 225px;
     padding: 10px;
     border-radius: 20px;
+    color: rgba(255, 255, 255, 0.75);
     background-color: white;
     transition: transform 0.5s ease-in-out, width 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+    box-shadow: rgba(150, 99, 80, 0.25) 0px 50px 100px -20px,
+        rgba(87, 87, 87, 0.3) 0px 30px 60px -30px;
 
     h1 {
         margin: 0;
     }
+}
+
+.top-5-most-common-ingredients {
+    border: 4px solid rgb(23, 145, 94);
+    color: rgb(23, 145, 94);
+    background-color: rgb(5, 43, 27);
+}
+
+.top-5-most-prolific-authors {
+    border: 4px solid rgb(179, 161, 61);
+    color: rgb(179, 161, 61);
+    background-color: rgb(54, 47, 6);
+}
+
+.top-5-most-complex-recipes {
+    border: 4px solid rgb(173, 50, 50);
+    color: rgb(173, 50, 50);
+    background-color: rgb(73, 9, 9);
 }
 
 .top-5-most-common-ingredients:hover,
@@ -72,13 +102,13 @@
 
 .top-5-title {
     display: flex;
-    /* width: 100%; */
     justify-content: space-between;
-    /* width: 100%; */
+    gap: 50px;
 }
 
 .top-5-title-number {
-    margin-top: 70px;
+    /* margin-top: 70px; */
+    margin: 0px;
     font-size: 150px;
 }
 
@@ -93,7 +123,6 @@
     p {
         margin: 5px;
         text-align: end;
-        /* margin-left: 20px; */
     }
 }
 
@@ -114,6 +143,7 @@
     align-items: center;
     width: 300px;
     height: 100%;
+    padding: 20px 0px 20px 0px;
 
     div {
         text-align: center;
@@ -149,9 +179,9 @@
     display: flex;
     justify-content: end;
     gap: 40px;
-    padding: 20px 40px 0 40px;
+    padding: 20px 40px 20px 40px;
     border-radius: 20px 20px 0 0;
-    background-color: white;
+    background-color: #3b3b3b;
 }
 
 .search-group, .filter-group {
@@ -159,15 +189,17 @@
     display: flex;
     align-items: center;
     height: 35px;
-    border: 2px solid rgb(214, 214, 214);
+    /* border: 2px solid rgb(214, 214, 214); */
     border-radius: 10px;
     padding-left: 10px;
     padding-right: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
     cursor: pointer;
 
     input {
         border: none;
         cursor: pointer;
+        background-color: transparent;
     }
 
     input:focus {
@@ -226,10 +258,10 @@
     width: 100%;
     height: 891px;
     padding: 20px 40px 20px 40px;
-    border-radius: 0 0 20px 20px;
     background-color: white;
     font-size: 20px;
     table-layout: fixed;
+    box-shadow: rgba(150, 99, 80, 0.25) 0px 50px 100px -20px, rgba(87, 87, 87, 0.3) 0px 30px 60px -30px;
 
     th {
         text-align: start;
@@ -282,48 +314,21 @@
     color: dodgerblue;
 }
 
-.pagination-group {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    height: 70px;
-}
-
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    width: 550px;
+    width: 100%;
     height: 100%;
+    padding: 15px;
     border-radius: 0 0 20px 20px;
     background-color: white;
+    box-shadow: rgba(150, 99, 80, 0.25) 0px 50px 100px -20px, rgba(87, 87, 87, 0.3) 0px 30px 60px -30px;
 
     button {
         font-size: 20px;
     }
-}
-
-.pagination-inverted-border-radius {
-    width: 100px;
-    height: 100%;
-    background-color: white;
-}
-
-.pagination-inverted-border-radius-mask-1,
-.pagination-inverted-border-radius-mask-2 {
-    position: absolute;
-    width: 100px;
-    height: 80px;
-    background-color: rgb(255, 230, 220);
-}
-
-.pagination-inverted-border-radius-mask-1 {
-    border-radius: 0 20px 0 0;
-}
-
-.pagination-inverted-border-radius-mask-2 {
-    border-radius: 20px 0 0 0;
 }
 
 .skill-Easy {
