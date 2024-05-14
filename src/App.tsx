@@ -59,6 +59,10 @@ interface ProlificAuthor {
     recipeCount: number;
 }
 
+interface IngredientFilter {
+    name: string;
+} 
+
 const App: React.FC = () => {
     const RECIPES_PER_PAGE: number = 20;
 
@@ -70,7 +74,7 @@ const App: React.FC = () => {
             searchQuery: "",
             ingredientFilters: [],
         });
-    const [filters, setFilters] = useState<string[]>([]);
+    const [filters, setFilters] = useState<IngredientFilter[]>([]);
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -141,10 +145,11 @@ const App: React.FC = () => {
     useEffect(() => {
         const fetchIngredients = async (): Promise<void> => {
             try {
-                const response = await axios.get<string[]>(
+                const response = await axios.get<IngredientFilter[]>(
                     `https://localhost:44389/Ingredients`
                 );
                 setFilters(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error("Error " + error);
             }
@@ -292,13 +297,13 @@ const App: React.FC = () => {
         }
     };
 
-    const handleSearchSubmit = (event) => {
+    const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setRecipeDataConfig({...recipeDataConfig, searchQuery: searchQuery});
         setCurrentPage(1);
     };
 
-    const handleSearchInputChange = (event) => {
+    const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value);
         if (event.target.value === "") {
             setRecipeDataConfig({...recipeDataConfig, searchQuery: event.target.value});
