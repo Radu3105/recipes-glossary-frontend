@@ -346,7 +346,7 @@ const App: React.FC = () => {
                                                         activeIngredientFilter
                                                     )
                                                 }
-                                                style={{ color: "dodgerblue" }}
+                                                className="filter-dropdown-active-item"
                                             >
                                                 {activeIngredientFilter}
                                             </p>
