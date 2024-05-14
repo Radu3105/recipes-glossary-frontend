@@ -276,6 +276,7 @@ const App: React.FC = () => {
     };
 
     const handlePageChange = (
+        // @ts-expect-error ...
         event: React.ChangeEvent<unknown>,
         value: number
     ): void => {
@@ -283,6 +284,7 @@ const App: React.FC = () => {
     };
 
     const handleAuthorModalPageChange = (
+        // @ts-expect-error ...
         event: React.ChangeEvent<unknown>,
         value: number
     ): void => {
