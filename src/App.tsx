@@ -149,7 +149,6 @@ const App: React.FC = () => {
                     `https://localhost:44389/Ingredients`
                 );
                 setFilters(response.data);
-                console.log(response.data);
             } catch (error) {
                 console.error("Error " + error);
             }
