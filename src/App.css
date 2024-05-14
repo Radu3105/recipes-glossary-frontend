@@ -2,8 +2,6 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    /* filter: blur(8px);
-    z-index: -1; */
 }
 
 .app-container {
@@ -13,7 +11,6 @@
     height: 100vh;
     padding: 40px 0 0 0;
     margin: auto;
-    /* z-index: 1; */
 }
 
 .app-title {
@@ -124,10 +121,6 @@
     font-size: 150px;
 }
 
-.top-5-title-number-mobile {
-
-}
-
 .top-5-title-text {
     display: flex;
     justify-content: center;
@@ -205,7 +198,6 @@
     display: flex;
     align-items: center;
     height: 35px;
-    /* border: 2px solid rgb(214, 214, 214); */
     border-radius: 10px;
     padding-left: 10px;
     padding-right: 10px;
@@ -264,10 +256,6 @@
         margin-top: 0px;
         margin-right: 10px;
         text-align: end;
-    }
-
-    hr {
-        /* width: 90%; */
     }
 }
 
@@ -528,6 +516,36 @@
     background-color: rgb(105, 96, 226);
 }
 
+.similar-recipes-container {
+    display: flex;
+    gap: 50px;
+    height: 130px;
+    margin-top: 50px;
+}
+
+.similar-recipe {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    text-align: center;
+    width: 20%;
+    border: 2px solid rgb(51, 51, 51);
+    border-radius: 15px;
+    cursor: pointer;
+
+    h3 {
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+}
+
+.similar-recipe:hover {
+    color: white;
+    background-color: rgb(51, 51, 51);
+}
+
 @keyframes animate-zoom {
     from {
         transform: scale(0);
@@ -588,12 +606,25 @@
     .search-group, .filter-group {
         justify-content: center;
     }
+
+    .similar-recipe {
+        width: 100% !important;
+    }
 }
 
 @media only screen and (max-width: 1023px) {
     .modal {
         height: 100%;
         padding: 30px;
+    }
+
+    .similar-recipes-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .similar-recipe {
+        width: 80%;
     }
 }
 
@@ -650,6 +681,8 @@
     .author-table {
         height: 90vh;
     }
+
+
 }
 
 @media only screen and (min-width: 1280px) and (max-width: 1439px) {

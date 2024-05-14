@@ -33,6 +33,13 @@ interface RecipeDetails {
     collections: string[];
     keywords: string[];
     dietTypes: string[];
+    similarRecipes: SimilarRecipe[];
+}
+
+interface SimilarRecipe {
+    recipeId: string;
+    recipeName: string;
+    similarityScore: number;
 }
 
 interface SortConfig {
@@ -161,7 +168,6 @@ const App: React.FC = () => {
             recipeDataConfig["searchQuery"],
             recipeDataConfig["ingredientFilters"]
         );
-        console.log(recipeDataConfig);
     }, [currentPage, recipeDataConfig]);
 
     const fetchRecipes = async (
@@ -179,17 +185,12 @@ const App: React.FC = () => {
             ...(searchQuery && { searchQuery }),
             ...(ingredientFilters.length > 0 && {
                 ingredientFilters: ingredientFilters.join(","),
-            }), // Join array into a comma-separated string if your API expects it this way
+            }),
         }).toString();
-
-        console.log(params);
-
         const fullUrl = `${baseUrl}?${params}`;
 
-        console.log("Calling API URL:", fullUrl); // Log the full URL
-
         try {
-            const response = await axios.get(fullUrl); // Use the full URL directly
+            const response = await axios.get(fullUrl);
             setRecipeData(response.data["recipes"]);
             setTotalPages(
                 Math.ceil(response.data["totalCount"] / RECIPES_PER_PAGE)
@@ -242,6 +243,10 @@ const App: React.FC = () => {
         setIsRecipeModalOpen(true);
         setIsAuthorModalOpen(false);
         await fetchRecipeDetails(recipe.recipeId);
+    };
+
+    const handleOnRecipeClickById = async (recipeId: string): Promise<void> => {
+        await fetchRecipeDetails(recipeId);
     };
 
     const handleOnAuthorRecipeClick = async (
@@ -425,11 +430,15 @@ const App: React.FC = () => {
                                 <div className="modal-group-1">
                                     <h2>Description</h2>
                                     <p>{recipeDetailsData.description + "."}</p>
-                                    <h2>Ingredients ({recipeDetailsData.ingredients.length})</h2>
+                                    <h2>
+                                        Ingredients (
+                                        {recipeDetailsData.ingredients.length})
+                                    </h2>
                                     <ul>
                                         {recipeDetailsData.ingredients.map(
                                             (ingredient) => (
-                                                <li className="modal-ingredient-item"
+                                                <li
+                                                    className="modal-ingredient-item"
                                                     key={ingredient}
                                                 >
                                                     {ingredient}
@@ -439,7 +448,8 @@ const App: React.FC = () => {
                                     </ul>
                                 </div>
                                 <div className="modal-group-2">
-                                    {recipeDetailsData.collections.length > 0 && (
+                                    {recipeDetailsData.collections.length >
+                                        0 && (
                                         <>
                                             <h2>Collections</h2>
                                             <div className="collection-container">
@@ -482,6 +492,29 @@ const App: React.FC = () => {
                                         </>
                                     )}
                                 </div>
+                            </div>
+                            <h2 style={{ textAlign: "center", marginTop: "100px" }}>
+                                Similar recipes
+                            </h2>
+                            <div className="similar-recipes-container">
+                                {recipeDetailsData.similarRecipes.map(
+                                    (similarRecipe: SimilarRecipe) => (
+                                        <div
+                                            className="similar-recipe"
+                                            onClick={() =>
+                                                handleOnRecipeClickById(
+                                                    similarRecipe.recipeId
+                                                )
+                                            }
+                                        >
+                                            <h3>{similarRecipe.recipeName}</h3>
+                                            <p>
+                                                Similarity score:{" "}
+                                                <b>{similarRecipe.similarityScore}</b>
+                                            </p>
+                                        </div>
+                                    )
+                                )}
                             </div>
                         </>
                     )}
