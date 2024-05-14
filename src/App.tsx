@@ -70,6 +70,9 @@ const App: React.FC = () => {
     const [top5MostCommonRecipes, setTop5MostCommonRecipes] = useState<CommonIngredient[]>([]);
     const [top5MostProlificAuthors, setTop5MostProlificAuthors] = useState<ProlificAuthor[]>([]);
     const [top5MostComplexRecipes, setTop5MostComplexRecipes] = useState<Recipe[]>([]);
+    const [isTop5IngredientsDropdownOpen, setIsTop5IngredientsDropdownOpen] = useState<boolean>(false);
+    const [isTop5AuthorsDropdownOpen, setIsTop5AuthorsDropdownOpen] = useState<boolean>(false);
+    const [isTop5RecipesDropdownOpen, setIsTop5RecipesDropdownOpen] = useState<boolean>(false);
     const [recipesByAuthorData, setRecipesByAuthorData] = useState<RecipeByAuthor[]>([]);
     const [recipeDetailsData, setRecipeDetailsData] = useState<RecipeDetails | null>(null);
     const [selectedAuthor, setSelectedAuthor] = useState<string>("");
@@ -535,137 +538,265 @@ const App: React.FC = () => {
 
     const renderTop5Items = (): ReactElement => {
         return (
-            <div className="top-5-container">
-                <div className="top-5-most-common-ingredients">
-                    <div
-                        onMouseDown={(event) => event.stopPropagation()}
-                        className="top-5-title"
-                    >
-                        <p className="top-5-title-number">5</p>
-                        <div className="top-5-title-text">
-                            <p>Most</p>
-                            <p>Common</p>
-                            <p>Ingredients</p>
+            <>
+                <div className="top-5-container">
+                    <div className="top-5-most-common-ingredients">
+                        <div
+                            onMouseDown={(event) => event.stopPropagation()}
+                            className="top-5-title"
+                        >
+                            <p className="top-5-title-number">5</p>
+                            <div className="top-5-title-text">
+                                <p>Most</p>
+                                <p>Common</p>
+                                <p>Ingredients</p>
+                            </div>
+                        </div>
+                        <div className="top-5-content">
+                            {top5MostCommonRecipes.map(
+                                (
+                                    ingredient: CommonIngredient,
+                                    counter: number = 0
+                                ) => (
+                                    <div className="top-5-content-item">
+                                        <div>
+                                            <h2>{++counter}.</h2>
+                                        </div>
+                                        <div>
+                                            <h3>
+                                                {capitalizeFirstLetter(
+                                                    ingredient.name
+                                                )}
+                                            </h3>
+                                            <p>
+                                                Found in{" "}
+                                                {ingredient.recipeCount} recipes
+                                            </p>
+                                        </div>
+                                    </div>
+                                )
+                            )}
                         </div>
                     </div>
-                    <div className="top-5-content">
-                        {top5MostCommonRecipes.map(
-                            (
-                                ingredient: CommonIngredient,
-                                counter: number = 0
-                            ) => (
-                                <div className="top-5-content-item">
-                                    <div>
-                                        <h2>{++counter}.</h2>
+                    <div className="top-5-most-prolific-authors">
+                        <div
+                            onMouseDown={(event) => event.stopPropagation()}
+                            className="top-5-title"
+                        >
+                            <p className="top-5-title-number">5</p>
+                            <div className="top-5-title-text">
+                                <p>Most</p>
+                                <p>Prolific</p>
+                                <p>Authors</p>
+                            </div>
+                        </div>
+                        <div className="top-5-content">
+                            {top5MostProlificAuthors.map(
+                                (
+                                    author: ProlificAuthor,
+                                    counter: number = 0
+                                ) => (
+                                    <div
+                                        onClick={(event) =>
+                                            handleOnAuthorClick(
+                                                event,
+                                                author.authorName
+                                            )
+                                        }
+                                        className="top-5-content-item"
+                                    >
+                                        <div>
+                                            <h2>{++counter}.</h2>
+                                        </div>
+                                        <div>
+                                            <h3>{author.authorName}</h3>
+                                            <p>
+                                                Wrote {author.recipeCount}{" "}
+                                                recipes
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
+                                )
+                            )}
+                        </div>
+                    </div>
+                    <div className="top-5-most-complex-recipes">
+                        <div
+                            onMouseDown={(event) => event.stopPropagation()}
+                            className="top-5-title"
+                        >
+                            <p className="top-5-title-number">5</p>
+                            <div className="top-5-title-text">
+                                <p>Most</p>
+                                <p>Complex</p>
+                                <p>Recipes</p>
+                            </div>
+                        </div>
+                        <div className="top-5-content">
+                            {top5MostComplexRecipes.map(
+                                (recipe: Recipe, counter: number = 0) => (
+                                    <div
+                                        onClick={() =>
+                                            handleOnRecipeClick(recipe)
+                                        }
+                                        className="top-5-content-item"
+                                    >
+                                        <div>
+                                            <h3>
+                                                {++counter}. {recipe.recipeName}
+                                            </h3>
+                                            <p>
+                                                <i>by {recipe.authorName}</i>
+                                            </p>
+                                            <p>
+                                                # of Ingredients :{" "}
+                                                <b>{recipe.ingredientCount}</b>
+                                            </p>
+                                            <p>
+                                                Skill:{" "}
+                                                <span
+                                                    style={{
+                                                        textShadow:
+                                                            "1px 1px 1px rgb(75, 75, 75)",
+                                                    }}
+                                                    className={
+                                                        "skill-" +
+                                                        recipe.skillLevel
+                                                            .split(" ")
+                                                            .join("")
+                                                    }
+                                                >
+                                                    {recipe.skillLevel}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="top-5-container-mobile">
+                    <div
+                        className="top-5-most-common-ingredients-mobile"
+                        onClick={() =>
+                            setIsTop5IngredientsDropdownOpen(
+                                !isTop5IngredientsDropdownOpen
+                            )
+                        }
+                    >
+                        <h1 className="top-5-title-mobile">
+                            Top 5 Most Common Ingredients
+                        </h1>
+                        {isTop5IngredientsDropdownOpen && (
+                            <div className="top-5-content-mobile">
+                                {top5MostCommonRecipes.map(
+                                    (
+                                        ingredient: CommonIngredient,
+                                        counter: number = 0
+                                    ) => (
                                         <h3>
+                                            {++counter}. {" "}
                                             {capitalizeFirstLetter(
                                                 ingredient.name
-                                            )}
-                                        </h3>
-                                        <p>
-                                            Found in {ingredient.recipeCount}{" "}
+                                            )} {" "}
+                                            - Found in{" "}
+                                            {ingredient.recipeCount}{" "}
                                             recipes
-                                        </p>
-                                    </div>
-                                </div>
-                            )
-                        )}
-                    </div>
-                </div>
-                <div className="top-5-most-prolific-authors">
-                    <div
-                        onMouseDown={(event) => event.stopPropagation()}
-                        className="top-5-title"
-                    >
-                        <p className="top-5-title-number">5</p>
-                        <div className="top-5-title-text">
-                            <p>Most</p>
-                            <p>Prolific</p>
-                            <p>Authors</p>
-                        </div>
-                    </div>
-                    <div className="top-5-content">
-                        {top5MostProlificAuthors.map(
-                            (author: ProlificAuthor, counter: number = 0) => (
-                                <div
-                                    onClick={(event) =>
-                                        handleOnAuthorClick(
-                                            event,
-                                            author.authorName
-                                        )
-                                    }
-                                    className="top-5-content-item"
-                                >
-                                    <div>
-                                        <h2>{++counter}.</h2>
-                                    </div>
-                                    <div>
-                                        <h3>{author.authorName}</h3>
-                                        <p>
-                                            Wrote {author.recipeCount} recipes
-                                        </p>
-                                    </div>
-                                </div>
-                            )
-                        )}
-                    </div>
-                </div>
-                <div className="top-5-most-complex-recipes">
-                    <div
-                        onMouseDown={(event) => event.stopPropagation()}
-                        className="top-5-title"
-                    >
-                        <p className="top-5-title-number">5</p>
-                        <div className="top-5-title-text">
-                            <p>Most</p>
-                            <p>Complex</p>
-                            <p>Recipes</p>
-                        </div>
-                    </div>
-                    <div className="top-5-content">
-                        {top5MostComplexRecipes.map(
-                            (recipe: Recipe, counter: number = 0) => (
-                                <div
-                                    onClick={() => handleOnRecipeClick(recipe)}
-                                    className="top-5-content-item"
-                                >
-                                    <div>
-                                        <h3>
-                                            {++counter}. {recipe.recipeName}
                                         </h3>
-                                        <p>
-                                            <i>by {recipe.authorName}</i>
-                                        </p>
-                                        <p>
-                                            # of Ingredients :{" "}
-                                            <b>{recipe.ingredientCount}</b>
-                                        </p>
-                                        <p>
-                                            Skill: {" "}
-                                            <span
-                                                style={{
-                                                    textShadow:
-                                                        "1px 1px 1px rgb(75, 75, 75)",
-                                                }}
-                                                className={
-                                                    "skill-" +
-                                                    recipe.skillLevel
-                                                        .split(" ")
-                                                        .join("")
-                                                }
-                                            >
-                                                {recipe.skillLevel}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
+                                    )
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <div
+                        className="top-5-most-prolific-authors-mobile"
+                        onClick={() =>
+                            setIsTop5AuthorsDropdownOpen(
+                                !isTop5AuthorsDropdownOpen
                             )
+                        }
+                    >
+                        <h1 className="top-5-title-mobile">
+                            Top 5 most prolific authors
+                        </h1>
+                        {isTop5AuthorsDropdownOpen && (
+                            <div className="top-5-content-mobile">
+                                {top5MostProlificAuthors.map(
+                                    (
+                                        author: ProlificAuthor,
+                                        counter: number = 0
+                                    ) => (
+                                        <h3
+                                            onClick={(event) =>
+                                                handleOnAuthorClick(
+                                                    event,
+                                                    author.authorName
+                                                )
+                                            }
+                                        >
+                                            {++counter}. {" "}
+                                            {author.authorName}{" "}
+                                            - Wrote {author.recipeCount}{" "}
+                                            recipes
+                                        </h3>
+                                    )
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <div
+                        className="top-5-most-complex-recipes-mobile"
+                        onClick={() =>
+                            setIsTop5RecipesDropdownOpen(
+                                !isTop5RecipesDropdownOpen
+                            )
+                        }
+                    >
+                        <h1 className="top-5-title-mobile">Top 5 most complex recipes</h1>
+                        {isTop5RecipesDropdownOpen && (
+                            <div className="top-5-content-mobile">
+                                {top5MostComplexRecipes.map(
+                                    (recipe: Recipe, counter: number = 0) => (
+                                        <h3
+                                            onClick={() =>
+                                                handleOnRecipeClick(recipe)
+                                            }
+                                        >
+                                            <div>
+                                                    {++counter}. {recipe.recipeName}
+                                                    <i> - by {recipe.authorName}</i>
+                                                <p>
+                                                    # of Ingredients :{" "}
+                                                    {recipe.ingredientCount} {" "}
+                                                    <span>
+                                                        - Skill:{" "}
+                                                        <span
+                                                            style={{
+                                                                textShadow:
+                                                                    "1px 1px 1px rgb(75, 75, 75)",
+                                                            }}
+                                                            className={
+                                                                "skill-" +
+                                                                recipe.skillLevel
+                                                                    .split(" ")
+                                                                    .join("")
+                                                            }
+                                                        >
+                                                            {recipe.skillLevel}
+                                                        </span>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </h3>
+                                    )
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </>
         );
     };
 
@@ -801,7 +932,7 @@ const App: React.FC = () => {
                                         "name",
                                         "45%"
                                     )}
-                                    <th style={{ width: "25%" }}>Author</th>
+                                    <th id="recipe-table-author-column-header" style={{ width: "25%" }}>Author</th>
                                     {renderTableHeaderItem(
                                         "# of Ingr.",
                                         "ingredientCount",
