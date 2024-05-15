@@ -99,7 +99,7 @@ const App: React.FC = () => {
         const fetchTop5MostCommonIngredients = async (): Promise<void> => {
             try {
                 const response = await axios.get<CommonIngredient[]>(
-                    `https://localhost:44389/Recipes/top-5-most-common-ingredients`
+                    `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes/top-5-most-common-ingredients`
                 );
                 setTop5MostCommonRecipes(response.data);
             } catch (error) {
@@ -111,7 +111,7 @@ const App: React.FC = () => {
         const fetchTop5MostProlificAuthors = async (): Promise<void> => {
             try {
                 const response = await axios.get<ProlificAuthor[]>(
-                    `https://localhost:44389/Recipes/top-5-most-prolific-authors`
+                    `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes/top-5-most-prolific-authors`
                 );
                 setTop5MostProlificAuthors(response.data);
             } catch (error) {
@@ -123,7 +123,7 @@ const App: React.FC = () => {
         const fetchTop5MostComplexRecipes = async (): Promise<void> => {
             try {
                 const response = await axios.get<Recipe[]>(
-                    `https://localhost:44389/Recipes/top-5-most-complex-recipes`
+                    `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes/top-5-most-complex-recipes`
                 );
                 setTop5MostComplexRecipes(response.data);
             } catch (error) {
@@ -146,7 +146,7 @@ const App: React.FC = () => {
         const fetchIngredients = async (): Promise<void> => {
             try {
                 const response = await axios.get<IngredientFilter[]>(
-                    `https://localhost:44389/Ingredients`
+                    `https://recipes-glossary-a24515c9460c.herokuapp.com/Ingredients`
                 );
                 setFilters(response.data);
             } catch (error) {
@@ -181,7 +181,7 @@ const App: React.FC = () => {
         searchQuery: string,
         ingredientFilters: string[]
     ): Promise<void> => {
-        const baseUrl = `https://localhost:44389/Recipes`;
+        const baseUrl = `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes`;
         const params = new URLSearchParams({
             pageNumber: pageNumber.toString(),
             sortBy,
@@ -211,7 +211,7 @@ const App: React.FC = () => {
     ): Promise<void> => {
         try {
             const response = await axios.get<number>(
-                `https://localhost:44389/Recipes/count/${authorName}`
+                `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes/count/${authorName}`
             );
             setTotalPagesByAuthor(Math.ceil(response.data / RECIPES_PER_PAGE));
         } catch (error) {
@@ -223,7 +223,7 @@ const App: React.FC = () => {
     const fetchRecipeDetails = async (recipeId: string): Promise<void> => {
         try {
             const response = await axios.get<RecipeDetails>(
-                `https://localhost:44389/Recipes/id/${recipeId}`
+                `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes/id/${recipeId}`
             );
             setRecipeDetailsData(response.data);
         } catch (error) {
@@ -235,7 +235,7 @@ const App: React.FC = () => {
     const fetchRecipesByAuthor = async (authorName: string): Promise<void> => {
         try {
             const response = await axios.get<RecipeByAuthor[]>(
-                `https://localhost:44389/Recipes/${authorName}/${authorModalCurrentPage}`
+                `https://recipes-glossary-a24515c9460c.herokuapp.com/Recipes/${authorName}/${authorModalCurrentPage}`
             );
             setRecipesByAuthorData(response.data);
         } catch (error) {
