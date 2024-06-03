@@ -8,60 +8,18 @@ import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faFilter, faMagnifyingGlass, faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import background from "./assets/doodle_food_pattern_new.jpg";
 import Modal from "./components/Modal";
-import { sToTime, capitalizeFirstLetter } from "./helpers";
+import { sToTime, capitalizeFirstLetter } from "./utils/helpers";
 
-interface Recipe {
-    recipeId: string;
-    recipeName: string;
-    authorName: string;
-    ingredientCount: number;
-    skillLevel: string;
-}
-
-interface RecipeByAuthor {
-    recipeId: string;
-    recipeName: string;
-}
-
-interface RecipeDetails {
-    id: string;
-    name: string;
-    description: string;
-    cookingTime: number;
-    preparationTime: number;
-    ingredients: string[];
-    collections: string[];
-    keywords: string[];
-    dietTypes: string[];
-    similarRecipes: SimilarRecipe[];
-}
-
-interface SimilarRecipe {
-    recipeId: string;
-    recipeName: string;
-    similarityScore: number;
-}
-
-interface SortConfig {
-    sortBy: string;
-    order: string;
-    searchQuery: string;
-    ingredientFilters: string[];
-}
-
-interface CommonIngredient {
-    name: string;
-    recipeCount: number;
-}
-
-interface ProlificAuthor {
-    authorName: string;
-    recipeCount: number;
-}
-
-interface IngredientFilter {
-    name: string;
-} 
+import {
+    CommonIngredient,
+    IngredientFilter,
+    ProlificAuthor,
+    Recipe,
+    RecipeByAuthor,
+    RecipeDetails,
+    SortConfig,
+    SimilarRecipe
+} from "./interfaces/interfaces";
 
 const App: React.FC = () => {
     const RECIPES_PER_PAGE: number = 20;
